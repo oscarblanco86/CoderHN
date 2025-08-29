@@ -1,4 +1,5 @@
 ---
+import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Hero from "../components/Hero.astro";
 import Services from "../components/Services.astro";
@@ -7,43 +8,13 @@ import Contact from "../components/Contact.astro";
 import Footer from "../components/Footer.astro";
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CoderHN | Soluciones Digitales Para Tu Negocio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --gradient: linear-gradient(135deg, #00bfa5, #00838f, #26c6da);
-        --text-color: #1c1c1c;
-      }
-      body {
-        margin: 0;
-        font-family: 'Ubuntu', sans-serif;
-        color: var(--text-color);
-        background: #f7f9fa;
-      }
-      main {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-    </style>
-  </head>
-  <body>
-    <Header />
-    <main>
-      <Hero />
-      <Services />
-      <Projects />
-      <Contact />
-    </main>
-    <Footer />
-  </body>
-</html>
+<BaseLayout title="CoderHN | Soluciones Digitales Para Tu Negocio">
+  <Header />
+  <main>
+    <Hero />
+    <Services />
+    <Projects />
+    <Contact />
+  </main>
+  <Footer />
+</BaseLayout>
