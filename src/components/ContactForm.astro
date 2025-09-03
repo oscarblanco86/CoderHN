@@ -55,21 +55,21 @@ if (Astro.request.method === "POST") {
     // If no errors, process the form (e.g., send email, save to database)
     const hasErrors = Object.values(errors).some((error) => error);
     console.log('has errors',hasErrors );
-    if (!hasErrors && formData.email) {
+    if (!hasErrors && formData.email !== "") {
         // Process the form data here
         console.log("Form submitted successfully:", formData);
-        // sendEmail({
-        //     from: formData.email,
-        //     // to: import.meta.env.MAIL_TO,
-        //     subject: "Nuevo mensaje de contacto desde CoderHN",
-        //     body: `
-        //         <h1>Nuevo mensaje de contacto</h1>
-        //         <p><strong>Nombre:</strong> ${formData.name}</p>
-        //         <p><strong>Email:</strong> ${formData.email}</p>
-        //         <p><strong>Mensaje:</strong></p>
-        //         <p>${formData.message.replace(/\n/g, "<br>")}</p>
-        //     `
-        // });
+        sendEmail({
+            from: formData.email,
+            // to: import.meta.env.MAIL_TO,
+            subject: "Nuevo mensaje de contacto desde CoderHN",
+            body: `
+                <h1>Nuevo mensaje de contacto</h1>
+                <p><strong>Nombre:</strong> ${formData.name}</p>
+                <p><strong>Email:</strong> ${formData.email}</p>
+                <p><strong>Mensaje:</strong></p>
+                <p>${formData.message.replace(/\n/g, "<br>")}</p>
+            `
+        });
         // Redirect or show a success message as needed
     } else {
         console.log("Form submission errors:", errors);
