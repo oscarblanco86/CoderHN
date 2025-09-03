@@ -1,0 +1,199 @@
+---
+import { fade } from "astro:transitions";
+import "../styles/global.css";
+// export const prerender = false; // Not needed in 'server' mode
+import { isValidEmail } from "../utils/contactValildate";
+import { sendEmail } from "../utils/mailer";
+
+const errors = { name: "", email: "", message: "", privacy: "", recaptcha: "" };
+const formData = {
+    name: "",
+    email: "",
+    message: "",
+    privacy: false,
+    recaptcha: "",
+};
+
+if (Astro.request.method === "POST") {
+    const form = await Astro.request.formData();
+    formData.name = form.get("name")?.toString().trim() || "";
+    formData.email = form.get("email")?.toString().trim() || "";
+    formData.message = form.get("message")?.toString().trim() || "";
+    formData.privacy = form.get("privacy") === "on";
+    formData.recaptcha = form.get("recaptcha")?.toString().trim() || "";
+
+    // Validate name
+    if (!formData.name) {
+        errors.name = "El nombre es obligatorio.";
+    } else if (formData.name.length < 2) {
+        errors.name = "El nombre debe tener al menos 2 caracteres.";
+    }
+
+    // Validate email
+    if (!formData.email) {
+        errors.email = "El correo electrónico es obligatorio.";
+    } else if (!isValidEmail(formData.email)) {
+        errors.email = "El correo electrónico no es válido.";
+    }
+
+    // Validate message
+    if (!formData.message) {
+        errors.message = "El mensaje es obligatorio.";
+    } else if (formData.message.length < 10) {
+        errors.message = "El mensaje debe tener al menos 10 caracteres.";
+    }
+
+    // Validate privacy policy acceptance
+    if (!formData.privacy) {
+        errors.privacy = "Debes aceptar la política de privacidad.";
+    }
+
+    // Validate reCAPTCHA token
+    if (!formData.recaptcha) {
+        errors.recaptcha = "La verificación reCAPTCHA es obligatoria.";
+    }
+    // If no errors, process the form (e.g., send email, save to database)
+    const hasErrors = Object.values(errors).some((error) => error);
+    console.log('has errors',hasErrors );
+    if (!hasErrors && formData.email) {
+        // Process the form data here
+        console.log("Form submitted successfully:", formData);
+        // sendEmail({
+        //     from: formData.email,
+        //     // to: import.meta.env.MAIL_TO,
+        //     subject: "Nuevo mensaje de contacto desde CoderHN",
+        //     body: `
+        //         <h1>Nuevo mensaje de contacto</h1>
+        //         <p><strong>Nombre:</strong> ${formData.name}</p>
+        //         <p><strong>Email:</strong> ${formData.email}</p>
+        //         <p><strong>Mensaje:</strong></p>
+        //         <p>${formData.message.replace(/\n/g, "<br>")}</p>
+        //     `
+        // });
+        // Redirect or show a success message as needed
+    } else {
+        console.log("Form submission errors:", errors);
+    }
+}
+
+---
+
+<html>
+
+<head>
+    <script is:inline src="https://www.google.com/recaptcha/api.js"></script>
+  </head>
+
+    <div
+        style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 3.5rem; margin-bottom: 3.5rem; cursor: margin: 4rem; max-width: 800px; margin-left: auto; margin-right: auto;"
+    >
+        <form
+            id="contact-form"
+            method="POST"
+            action="/contacto"
+            class="space-y-6"
+        >
+            <div>
+                <label
+                    for="name"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    >Nombre</label
+                >
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    class="block w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+            </div>
+
+            <div>
+                <label
+                    for="email"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    >Correo Electrónico</label
+                >
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    class="block w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+            </div>
+
+            <div>
+                <label
+                    for="message"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    >Mensaje</label
+                >
+                <textarea
+                    id="message"
+                    name="message"
+                    rows="4"
+                    required
+                    class="block w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                ></textarea>
+            </div>
+
+            <div class="flex items-start">
+                <input
+                    type="checkbox"
+                    id="privacy"
+                    name="privacy"
+                    required
+                    class="mt-1 mr-2"
+                />
+                <label for="privacy" class="text-sm text-gray-700">
+                    He leído y acepto la <a
+                        href="/politica-de-privacidad"
+                        target="_blank"
+                        class="text-indigo-600 underline"
+                        >Política de Privacidad</a
+                    >
+                </label>
+            </div>
+
+            <button
+               class="g-recaptcha"
+      data-sitekey="6LfDB7wrAAAAAGEw6fI-G9juwdiHzhXpWAbk5lDy"
+      data-callback="onSubmit"
+      data-action="submit"
+                type="submit"
+                style="width: 100%;
+        background: linear-gradient(135deg, #00bfa5, #00838f, #26c6da);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: opacity 0.3s ease;"
+            >
+                Enviar
+            </button>
+
+            <script is:inline>
+      function onSubmit(token) {
+        fetch("/recaptcha", {
+          method: "POST",
+          body: JSON.stringify({ recaptcha: token })
+        })
+        .then((response) => response.json())
+        .then((gResponse) => {
+          if (gResponse.success) {
+            // Captcha verification was a success
+            console.log("Captcha verified successfully")
+          } else {
+            // Captcha verification failed
+            console.log("Captcha verification failed")
+          }
+        })
+      }
+    </script>
+        </form>
+    </div>
+</html>

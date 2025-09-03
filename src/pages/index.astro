@@ -1,20 +1,20 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Hero from "../components/Hero.astro";
 import Services from "../components/Services.astro";
 import Projects from "../components/Projects.astro";
-import Contact from "../components/Contact.astro";
+import ContactForm from "../components/ContactForm.astro";
 import Footer from "../components/Footer.astro";
+import Layout from "../layouts/Layout.astro";
 ---
 
-<BaseLayout title="CoderHN | Soluciones Digitales Para Tu Negocio">
+<Layout title="CoderHN | Soluciones Digitales Para Tu Negocio">
   <Header />
   <main>
     <Hero />
     <Services />
     <Projects />
-    <Contact />
+    <!-- <ContactForm /> -->
   </main>
   <Footer />
-</BaseLayout>
+</Layout>

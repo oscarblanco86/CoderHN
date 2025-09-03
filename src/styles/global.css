@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+:root {
+        --gradient: linear-gradient(135deg, #00bfa5, #00838f, #26c6da);
+        --text-color: #1c1c1c;
+      }
+      body {
+        margin: 0;
+        font-family: 'Ubuntu', sans-serif;
+        color: var(--text-color);
+        background: #f7f9fa;
+      }
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
