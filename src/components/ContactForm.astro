@@ -54,35 +54,35 @@ if (Astro.request.method === "POST") {
     }
     // If no errors, process the form (e.g., send email, save to database)
     const hasErrors = Object.values(errors).some((error) => error);
-    console.log('has errors',hasErrors );
+    console.log("has errors", hasErrors);
     if (!hasErrors && formData.email !== "") {
         // Process the form data here
         console.log("Form submitted successfully:", formData);
-        sendEmail({
+        await sendEmail({
             from: formData.email,
-            // to: import.meta.env.MAIL_TO,
+            to: import.meta.env.MAIL_TO,
             subject: "Nuevo mensaje de contacto desde CoderHN",
-            body: `
-                <h1>Nuevo mensaje de contacto</h1>
-                <p><strong>Nombre:</strong> ${formData.name}</p>
-                <p><strong>Email:</strong> ${formData.email}</p>
-                <p><strong>Mensaje:</strong></p>
-                <p>${formData.message.replace(/\n/g, "<br>")}</p>
-            `
+            html: `
+    <h1>Nuevo mensaje de contacto</h1>
+    <p><strong>Nombre:</strong> ${formData.name}</p>
+    <p><strong>Email:</strong> ${formData.email}</p>
+    <p><strong>Mensaje:</strong></p>
+    <p>${formData.message.replace(/\n/g, "<br>")}</p>
+  `,
         });
         // Redirect or show a success message as needed
+        return Astro.redirect("/mensaje-enviado")
     } else {
         console.log("Form submission errors:", errors);
     }
 }
-
 ---
 
 <html>
-
-<head>
-    <script is:inline src="https://www.google.com/recaptcha/api.js"></script>
-  </head>
+    <head>
+        <script is:inline src="https://www.google.com/recaptcha/api.js"
+        ></script>
+    </head>
 
     <div
         style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 3.5rem; margin-bottom: 3.5rem; cursor: margin: 4rem; max-width: 800px; margin-left: auto; margin-right: auto;"
@@ -93,6 +93,8 @@ if (Astro.request.method === "POST") {
             action="/contacto"
             class="space-y-6"
         >
+            <input type="hidden" name="recaptcha" id="recaptcha-token" />
+
             <div>
                 <label
                     for="name"
@@ -157,10 +159,10 @@ if (Astro.request.method === "POST") {
             </div>
 
             <button
-               class="g-recaptcha"
-      data-sitekey="6LfDB7wrAAAAAGEw6fI-G9juwdiHzhXpWAbk5lDy"
-      data-callback="onSubmit"
-      data-action="submit"
+                class="g-recaptcha"
+                data-sitekey="6LfDB7wrAAAAAGEw6fI-G9juwdiHzhXpWAbk5lDy"
+                data-callback="onSubmit"
+                data-action="submit"
                 type="submit"
                 style="width: 100%;
         background: linear-gradient(135deg, #00bfa5, #00838f, #26c6da);
@@ -177,23 +179,27 @@ if (Astro.request.method === "POST") {
             </button>
 
             <script is:inline>
-      function onSubmit(token) {
-        fetch("/recaptcha", {
-          method: "POST",
-          body: JSON.stringify({ recaptcha: token })
-        })
-        .then((response) => response.json())
-        .then((gResponse) => {
-          if (gResponse.success) {
-            // Captcha verification was a success
-            console.log("Captcha verified successfully")
-          } else {
-            // Captcha verification failed
-            console.log("Captcha verification failed")
-          }
-        })
-      }
-    </script>
+                function onSubmit(token) {
+                    document.getElementById("recaptcha-token").value = token;
+                    document.getElementById("contact-form").submit();
+                    fetch("/recaptcha", {
+                        method: "POST",
+                        body: JSON.stringify({ recaptcha: token }),
+                    })
+                        .then((response) => response.json())
+                        .then((gResponse) => {
+                            if (gResponse.success) {
+                                // Captcha verification was a success
+                                console.log("Captcha verified successfully");
+                            } else {
+                                // Captcha verification failed
+                                console.log("Captcha verification failed");
+                            }
+                        });
+                }
+            </script>
         </form>
     </div>
+
+
 </html>
