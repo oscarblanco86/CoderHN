@@ -1,9 +1,39 @@
 ---
-import Layout from "../layouts/Layout.astro"
-import Header from "../components/Header.astro"
-import Footer from "../components/Footer.astro"
-import ContactForm from "../components/ContactForm.astro"
-import Contact from "../components/Contact.astro"
+// src/pages/contacto.astro
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ContactForm from "../components/ContactForm.astro";
+import { sendEmail } from "../utils/mailer";
+import { isValidEmail } from "../utils/contactValildate";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const name = form.get("name")?.toString().trim() || "";
+  const email = form.get("email")?.toString().trim() || "";
+  const message = form.get("message")?.toString().trim() || "";
+  const privacy = form.get("privacy") === "on";
+  const recaptcha = form.get("recaptcha")?.toString().trim() || "";
+
+  if (!name || !email || !message || !privacy || !recaptcha) {
+    return Astro.redirect("/contacto?error=1");
+  }
+
+  await sendEmail({
+    from: email,
+    subject: "Nuevo mensaje de contacto desde CoderHN",
+    to: "oscarmb86@hotmail.com",
+    body: `
+      <h1>Nuevo mensaje de contacto</h1>
+      <p><strong>Nombre:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Mensaje:</strong></p>
+      <p>${message.replace(/\n/g, "<br>")}</p>
+    `,
+  });
+
+  return Astro.redirect("/mensaje-enviado");
+}
 ---
 
 <Layout title="CoderHN | 📬 Contacto">

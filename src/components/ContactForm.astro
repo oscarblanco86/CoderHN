@@ -1,81 +1,79 @@
 ---
-import { fade } from "astro:transitions";
 import "../styles/global.css";
-// export const prerender = false; // Not needed in 'server' mode
-import { isValidEmail } from "../utils/contactValildate";
-import { sendEmail } from "../utils/mailer";
+// import { isValidEmail } from "../utils/contactValildate";
+// import { sendEmail } from "../utils/mailer";
 
-const errors = { name: "", email: "", message: "", privacy: "", recaptcha: "" };
-const formData = {
-    name: "",
-    email: "",
-    message: "",
-    privacy: false,
-    recaptcha: "",
-};
+// const errors = { name: "", email: "", message: "", privacy: "", recaptcha: "" };
+// const formData = {
+//     name: "",
+//     email: "",
+//     message: "",
+//     privacy: false,
+//     recaptcha: "",
+// };
 
-if (Astro.request.method === "POST") {
-    const form = await Astro.request.formData();
-    formData.name = form.get("name")?.toString().trim() || "";
-    formData.email = form.get("email")?.toString().trim() || "";
-    formData.message = form.get("message")?.toString().trim() || "";
-    formData.privacy = form.get("privacy") === "on";
-    formData.recaptcha = form.get("recaptcha")?.toString().trim() || "";
+// if (Astro.request.method === "POST") {
+//     const form = await Astro.request.formData();
+//     formData.name = form.get("name")?.toString().trim() || "";
+//     formData.email = form.get("email")?.toString().trim() || "";
+//     formData.message = form.get("message")?.toString().trim() || "";
+//     formData.privacy = form.get("privacy") === "on";
+//     formData.recaptcha = form.get("recaptcha")?.toString().trim() || "";
 
-    // Validate name
-    if (!formData.name) {
-        errors.name = "El nombre es obligatorio.";
-    } else if (formData.name.length < 2) {
-        errors.name = "El nombre debe tener al menos 2 caracteres.";
-    }
+//     // Validate name
+//     if (!formData.name) {
+//         errors.name = "El nombre es obligatorio.";
+//     } else if (formData.name.length < 2) {
+//         errors.name = "El nombre debe tener al menos 2 caracteres.";
+//     }
 
-    // Validate email
-    if (!formData.email) {
-        errors.email = "El correo electrónico es obligatorio.";
-    } else if (!isValidEmail(formData.email)) {
-        errors.email = "El correo electrónico no es válido.";
-    }
+//     // Validate email
+//     if (!formData.email) {
+//         errors.email = "El correo electrónico es obligatorio.";
+//     } else if (!isValidEmail(formData.email)) {
+//         errors.email = "El correo electrónico no es válido.";
+//     }
 
-    // Validate message
-    if (!formData.message) {
-        errors.message = "El mensaje es obligatorio.";
-    } else if (formData.message.length < 10) {
-        errors.message = "El mensaje debe tener al menos 10 caracteres.";
-    }
+//     // Validate message
+//     if (!formData.message) {
+//         errors.message = "El mensaje es obligatorio.";
+//     } else if (formData.message.length < 10) {
+//         errors.message = "El mensaje debe tener al menos 10 caracteres.";
+//     }
 
-    // Validate privacy policy acceptance
-    if (!formData.privacy) {
-        errors.privacy = "Debes aceptar la política de privacidad.";
-    }
+//     // Validate privacy policy acceptance
+//     if (!formData.privacy) {
+//         errors.privacy = "Debes aceptar la política de privacidad.";
+//     }
 
-    // Validate reCAPTCHA token
-    if (!formData.recaptcha) {
-        errors.recaptcha = "La verificación reCAPTCHA es obligatoria.";
-    }
-    // If no errors, process the form (e.g., send email, save to database)
-    const hasErrors = Object.values(errors).some((error) => error);
-    console.log("has errors", hasErrors);
-    if (!hasErrors && formData.email !== "") {
-        // Process the form data here
-        console.log("Form submitted successfully:", formData);
-        await sendEmail({
-            from: formData.email,
-            to: import.meta.env.MAIL_TO,
-            subject: "Nuevo mensaje de contacto desde CoderHN",
-            html: `
-    <h1>Nuevo mensaje de contacto</h1>
-    <p><strong>Nombre:</strong> ${formData.name}</p>
-    <p><strong>Email:</strong> ${formData.email}</p>
-    <p><strong>Mensaje:</strong></p>
-    <p>${formData.message.replace(/\n/g, "<br>")}</p>
-  `,
-        });
-        // Redirect or show a success message as needed
-        return Astro.redirect("/mensaje-enviado")
-    } else {
-        console.log("Form submission errors:", errors);
-    }
-}
+//     // Validate reCAPTCHA token
+//     if (!formData.recaptcha) {
+//         errors.recaptcha = "La verificación reCAPTCHA es obligatoria.";
+//     }
+//     // If no errors, process the form (e.g., send email, save to database)
+//     const hasErrors = Object.values(errors).some((error) => error);
+//     console.log("has errors", hasErrors);
+//     if (!hasErrors && formData.email !== "") {
+//         // Process the form data here
+//         console.log("Form submitted successfully:", formData);
+//         await sendEmail({
+//             from: formData.email,
+//             to: import.meta.env.MAIL_TO || "oscarmb86@hotmail.com",
+//             subject: "Nuevo mensaje de contacto desde CoderHN",
+//             html: `
+//     <h1>Nuevo mensaje de contacto</h1>
+//     <p><strong>Nombre:</strong> ${formData.name}</p>
+//     <p><strong>Email:</strong> ${formData.email}</p>
+//     <p><strong>Mensaje:</strong></p>
+//     <p>${formData.message.replace(/\n/g, "<br>")}</p>
+//   `,
+//         });
+//         // Redirect or show a success message as needed
+//         return Astro.redirect("/mensaje-enviado")
+//     } else {
+//         console.log("Form submission errors:", errors);
+//     }
+// }
 ---
 
 <html>
@@ -182,20 +180,6 @@ if (Astro.request.method === "POST") {
                 function onSubmit(token) {
                     document.getElementById("recaptcha-token").value = token;
                     document.getElementById("contact-form").submit();
-                    fetch("/recaptcha", {
-                        method: "POST",
-                        body: JSON.stringify({ recaptcha: token }),
-                    })
-                        .then((response) => response.json())
-                        .then((gResponse) => {
-                            if (gResponse.success) {
-                                // Captcha verification was a success
-                                console.log("Captcha verified successfully");
-                            } else {
-                                // Captcha verification failed
-                                console.log("Captcha verification failed");
-                            }
-                        });
                 }
             </script>
         </form>
